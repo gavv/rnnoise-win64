@@ -1,0 +1,66 @@
+name: "build"
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-2019
+    steps:
+      - name: Setup Git
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Setup Clang
+        uses: egor-tensin/setup-clang@v1
+        with:
+          version: latest
+          platform: x64
+
+      - name: Run CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G "Visual Studio 16 2019" -T ClangCL -A x64 `
+            "-DCMAKE_BUILD_TYPE=Release" `
+            "-DCMAKE_INSTALL_PREFIX=$pwd/../../install"
+
+      - name: Build
+        run: |
+          cd build
+          cmake --build . --config Release
+
+      - name: Install
+        run: |
+          mkdir ../install
+          cd build
+          cmake --build . --config Release --target install
+
+      - name: Deploy
+        run: |
+          git checkout pkg
+          if (test-path include) {
+            rm -r include
+          }
+          if (test-path lib) {
+            rm -r lib
+          }
+          mv ../install/include .
+          mv ../install/lib .
+          git add include
+          git add lib
+          git config user.email "actions-bot@users.noreply.github.com"
+          git config user.name "actions-bot"
+          git commit -m"Deploy RNNoise"
+          git push -f origin pkg:pkg
