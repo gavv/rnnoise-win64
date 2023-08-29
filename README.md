@@ -9,4 +9,4 @@ Branch    | Description
 [`main`](https://github.com/gavv/rnnoise-win64) | build script and github actions config
 [`pkg`](https://github.com/gavv/rnnoise-win64/tree/pkg) | built binaries
 
-The library is built using CMake with Visual Stduio 2019 LLVM compiler toolchain. It is binary-compatible with MSVC.
+The library is built using CMake with Visual Studio 2019 LLVM compiler toolchain. It is binary-compatible with MSVC.
